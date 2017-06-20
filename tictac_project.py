@@ -1,14 +1,14 @@
 import random
 import sys
 
-Modes = ["A", "a", "P", "p"]
-Answers = ["Yes", "yes", "No", "no"]
-gamemode = 0
+gamemode = ["A", "a", "P", "p"]
+answers = ["Yes", "yes", "No", "no"]
+gamemode_variant = 0
 win = [(1, 2, 3), (4, 5, 6), (7, 8, 9), (1, 4, 7),
        (2, 5, 8), (3, 6, 9), (1, 5, 9), (3, 5, 7)]
 
 
-def drawBoard(board):
+def draw_board(board):
     print("     |     |")
     print("  " + str(board[7]) + "  |  " +
           str(board[8]) + "  |  " + str(board[9]))
@@ -25,92 +25,92 @@ def drawBoard(board):
     print("     |     |")
 
 
-def inputGameMode():
-    global gamemode
-    gamemode = 0
-    moveletter = 0
-    while moveletter not in Modes:
-        moveletter = input(
+def input_game_mode():
+    global gamemode_variant
+    gamemode_variant = 0
+    chosen_gamemode = 0
+    while chosen_gamemode not in gamemode:
+        chosen_gamemode = input(
             "\nPress A to play against AI \nor P to play against another player: \n")
-    if moveletter == "A" or moveletter == "a":
+    if chosen_gamemode == "A" or chosen_gamemode == "a":
         print("\nYou are playing against: AI\n")
-        gamemode = gamemode + 1
+        gamemode_variant = gamemode_variant + 1
     else:
         print("\nYou are playing against: Player2\n")
-        gamemode = gamemode + 2
-    return gamemode
+        gamemode_variant = gamemode_variant + 2
+    return gamemode_variant
 
 
-def enemyAI():
-    global theBoard
-    theBoard = [" "] * 10
-    playerLetter, computerLetter = inputPlayerLetter()
-    turn = whoGoesFirst()
+def enemy_ai():
+    global board_setup
+    board_setup = [" "] * 10
+    player_marker, computer_marker = input_player_marker()
+    turn = who_goes_first()
     print("\nThe " + turn + " will go first.\n")
-    gameIsPlaying = True
-    while gameIsPlaying:
+    game_is_playing = True
+    while game_is_playing:
         if turn == "player":
-            drawBoard(theBoard)
-            move = getPlayerMove(theBoard)
-            makeMove(theBoard, playerLetter, move)
-            if isWinner(theBoard, playerLetter):
-                drawBoard(theBoard)
+            draw_board(board_setup)
+            move = get_player_move(board_setup)
+            make_move(board_setup, player_marker, move)
+            if check_for_winner(board_setup, player_marker):
+                draw_board(board_setup)
                 print("You have won the game!\nCongratulation!\n")
-                gameIsPlaying = False
+                game_is_playing = False
             else:
-                if isBoardFull(theBoard):
-                    drawBoard(theBoard)
+                if is_board_full(board_setup):
+                    draw_board(board_setup)
                     print("The game is a tie!\n")
                     break
                 else:
                     turn = "computer"
         else:
-            move = getComputerMove(theBoard, computerLetter)
-            makeMove(theBoard, computerLetter, move)
-            if isWinner(theBoard, computerLetter):
-                drawBoard(theBoard)
+            move = get_computer_move(board_setup, computer_marker)
+            make_move(board_setup, computer_marker, move)
+            if check_for_winner(board_setup, computer_marker):
+                draw_board(board_setup)
                 print("The computer has beaten you!\n You lose.\n")
-                gameIsPlaying = False
+                game_is_playing = False
             else:
-                if isBoardFull(theBoard):
-                    drawBoard(theBoard)
+                if is_board_full(board_setup):
+                    draw_board(board_setup)
                     print("The game is a tie!\n")
                     break
                 else:
                     turn = "player"
 
 
-def inputPlayerLetter():
-    letter = ""
-    while not (letter == "X" or letter == "O"):
+def input_player_marker():
+    marker = ""
+    while not (marker == "X" or marker == "O"):
         print("Do you want to be X or O?")
-        letter = input().upper()
-    if letter == "X":
+        marker = input().upper()
+    if marker == "X":
         return ["X", "O"]
     else:
         return ["O", "X"]
 
 
-def whoGoesFirst():
+def who_goes_first():
     if random.randint(0, 1) == 0:
         return "computer"
     else:
         return "player"
 
 
-def getPlayerMove(board):
+def get_player_move(board):
     move = ' '
-    while move not in "1 2 3 4 5 6 7 8 9".split() or not isSpaceFree(board, int(move)):
+    while move not in "1 2 3 4 5 6 7 8 9".split() or not is_space_free(board, int(move)):
         print("\nWhat is your next move? (1-9)")
         move = input()
     return int(move)
 
 
-def makeMove(board, letter, move):
-    board[move] = letter
+def make_move(board, marker, move):
+    board[move] = marker
 
 
-def isWinner(bo, le):
+def check_for_winner(bo, le):
     return ((bo[7] == le and bo[8] == le and bo[9] == le) or
             (bo[4] == le and bo[5] == le and bo[6] == le) or
             (bo[1] == le and bo[2] == le and bo[3] == le) or
@@ -121,7 +121,7 @@ def isWinner(bo, le):
             (bo[9] == le and bo[5] == le and bo[1] == le))
 
 
-def taken(board):
+def space_taken(board):
     while True:
         try:
             x = int(input())
@@ -133,57 +133,57 @@ def taken(board):
             print("\nPlease enter a number between 1 and 9.")
 
 
-def getComputerMove(board, computerLetter):
+def get_computer_move(board, computer_marker):
     global move
-    if computerLetter == "X":
-        playerLetter = "O"
+    if computer_marker == "X":
+        player_marker = "O"
     else:
-        playerLetter = "X"
+        player_marker = "X"
     for i in range(1, 10):
-        copy = getBoardCopy(board)
-        if isSpaceFree(copy, i):
-            makeMove(copy, computerLetter, i)
-            if isWinner(copy, computerLetter):
+        copy = get_board_copy(board)
+        if is_space_free(copy, i):
+            make_move(copy, computer_marker, i)
+            if check_for_winner(copy, computer_marker):
                 return i
     for i in range(1, 10):
-        copy = getBoardCopy(board)
-        if isSpaceFree(copy, i):
-            makeMove(copy, playerLetter, i)
-            if isWinner(copy, playerLetter):
+        copy = get_board_copy(board)
+        if is_space_free(copy, i):
+            make_move(copy, player_marker, i)
+            if check_for_winner(copy, player_marker):
                 return i
-    move = chooseRandomMoveFromList(board, [1, 3, 7, 9])
+    move = choose_random_move_from_list(board, [1, 3, 7, 9])
     if move is not None:
         return move
-    if isSpaceFree(board, 5):
+    if is_space_free(board, 5):
         return 5
-    return chooseRandomMoveFromList(board, [2, 4, 6, 8])
+    return choose_random_move_from_list(board, [2, 4, 6, 8])
 
 
-def isSpaceFree(board, move):
+def is_space_free(board, move):
     return board[move] == " "
 
 
-def getBoardCopy(board):
-    dupeBoard = []
+def get_board_copy(board):
+    copy_board = []
     for i in board:
-        dupeBoard.append(i)
-    return dupeBoard
+        copy_board.append(i)
+    return copy_board
 
 
-def chooseRandomMoveFromList(board, movesList):
-    possibleMoves = []
-    for i in movesList:
-        if isSpaceFree(board, i):
-            possibleMoves.append(i)
-    if len(possibleMoves) != 0:
-        return random.choice(possibleMoves)
+def choose_random_move_from_list(board, moves_list):
+    possible_moves = []
+    for i in moves_list:
+        if is_space_free(board, i):
+            possible_moves.append(i)
+    if len(possible_moves) != 0:
+        return random.choice(possible_moves)
     else:
         return None
 
 
-def isBoardFull(board):
+def is_board_full(board):
     for i in range(1, 10):
-        if isSpaceFree(board, i):
+        if is_space_free(board, i):
             return False
     return True
 
@@ -199,23 +199,23 @@ def end(win, board):
         return True
 
 
-def enemyPlayer():
+def enemy_player():
     for player in "XO" * 9:
-        drawBoard(board)
+        draw_board(board)
         if end(win, board):
             break
         print("\nPlayer {0}".format(player))
-        board[taken(board)] = player
+        board[space_taken(board)] = player
         print()
 
 
-def playAgain():
-    escInput = None
-    while escInput not in Answers:
-        escInput = input("Do you want to play again? (yes or no)\n")
-    if escInput == "No" or escInput == "no":
+def play_again():
+    escape_input = None
+    while escape_input not in answers:
+        escape_input = input("Do you want to play again? (yes or no)\n")
+    if escape_input == "No" or escape_input == "no":
         exit()
-    return escInput
+    return escape_input
 
 
 def exit():
@@ -225,10 +225,10 @@ def exit():
 print("\n /  Welcome to  \ \n \ TIC TAC TOE !/ \n ")
 
 while True:
-    inputGameMode()
+    input_game_mode()
     board = [None] + list(range(1, 10))
-    if gamemode == 1:
-        enemyAI()
-    if gamemode == 2:
-        enemyPlayer()
-    playAgain()
+    if gamemode_variant == 1:
+        enemy_ai()
+    if gamemode_variant == 2:
+        enemy_player()
+    play_again()
