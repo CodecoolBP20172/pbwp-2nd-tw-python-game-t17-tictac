@@ -1,5 +1,6 @@
 import random
 import sys
+import time
 import pygame
 
 name_of_players = {"X": "", "O": ""}
@@ -9,9 +10,11 @@ answers = ["Yes", "yes", "No", "no"]
 
 
 def intro():
-    print("\n /  Welcome to  \ \n \ TIC TAC TOE !/ \n ")
+    print("\n\t|  Welcome to    | ")
+    print("\t|  TIC TAC TOE ! | \n ")
     pygame.init()
     pygame.mixer.init()
+    play_sound("welcome_message.wav")
 
 
 def draw_board(board):
@@ -41,12 +44,13 @@ def input_game_mode():
     gamemode_variant = 0
     chosen_gamemode = 0
     while chosen_gamemode not in gamemode:
-        play_sound("ding.wav")
         chosen_gamemode = input(
             "\nPress A to play against AI \nor P to play against another player: \n")
     if chosen_gamemode == "A" or chosen_gamemode == "a":
+        play_sound("ai_mode_start.ogg")
         gamemode_variant = gamemode_variant + 1
     else:
+        play_sound("player_mode_start.wav")
         gamemode_variant = gamemode_variant + 2
     return gamemode_variant
 
@@ -59,7 +63,7 @@ def quit_game(board, message=None):
 def get_player_move(board):
     move = " "
     while move not in "1 2 3 4 5 6 7 8 9".split() or not is_space_free(board, int(move)):
-        play_sound("ding.wav")
+        play_sound("fire.wav")
         print("\nWhat is your next move? (1-9)")
         move = input()
     return int(move)
@@ -70,8 +74,8 @@ def make_move(board, marker, move):
 
 
 def is_board_full(board):
-    for i in range(1, 10):
-        if is_space_free(board, i):
+    for space in range(1, 10):
+        if is_space_free(board, space):
             return False
     return True
 
@@ -83,7 +87,7 @@ def space_taken(board):
             if move in board:
                 return move
             else:
-                play_sound("ding.wav")
+                play_sound("ping.wav")
                 print("\nSpace already taken. Please try again.")
         except ValueError:
             print("\nPlease enter a number between 1 and 9.")
@@ -99,12 +103,14 @@ def play_again():
 
 
 def exit():
+    play_sound("exit_message.ogg")
+    time.sleep(1)
     good_bye()
     sys.exit()
 
 
 def congrats():
-    play_sound("tada.wav")
+    play_sound("good_shot.wav")
     print("\n CCCC    OOOO   N    N   GGGG   RRRR    AAAA   TTTTT   SSSS   !!")
     print("C       O    O  NN   N  G       R   R  A    A    T    S       !!")
     print("C       O    O  N N  N  G  GGG  RRRRR  AAAAAA    T     SSSS   !!")
@@ -142,6 +148,7 @@ def game_against_ai():
                 game_is_playing = False
             else:
                 if is_board_full(board_setup):
+                    play_sound("ai_mode_player_tie.ogg")
                     quit_game(board_setup, "\nThe game is a tie!\n")
                     break
                 else:
@@ -150,11 +157,12 @@ def game_against_ai():
             move = get_computer_move(board_setup, computer_marker)
             make_move(board_setup, computer_marker, move)
             if check_for_winner(board_setup, computer_marker):
-                play_sound("error.wav")
+                play_sound("ai_win.ogg")
                 quit_game(board_setup, "\nThe computer has beaten you!\n You lose.\n")
                 break
             else:
                 if is_board_full(board_setup):
+                    play_sound("no_happy_ending_for_a_turret.ogg")
                     quit_game(board_setup, "\nThe game is a tie!\n")
                     break
                 else:
@@ -164,7 +172,6 @@ def game_against_ai():
 def input_player_marker():
     marker = ""
     while not (marker == "X" or marker == "O"):
-        play_sound("ding.wav")
         print("Do you want to be X or O?")
         marker = input().upper()
     if marker == "X":
@@ -186,18 +193,18 @@ def get_computer_move(board, computer_marker):
         player_marker = "O"
     else:
         player_marker = "X"
-    for i in range(1, 10):
+    for space in range(1, 10):
         copy = get_board_copy(board)
-        if is_space_free(copy, i):
-            make_move(copy, computer_marker, i)
+        if is_space_free(copy, space):
+            make_move(copy, computer_marker, space)
             if check_for_winner(copy, computer_marker):
-                return i
-    for i in range(1, 10):
+                return space
+    for space in range(1, 10):
         copy = get_board_copy(board)
-        if is_space_free(copy, i):
-            make_move(copy, player_marker, i)
+        if is_space_free(copy, space):
+            make_move(copy, player_marker, space)
             if check_for_winner(copy, player_marker):
-                return i
+                return space
     move = choose_random_move_from_list(board, [1, 3, 7, 9])
     if move is not None:
         return move
@@ -208,9 +215,9 @@ def get_computer_move(board, computer_marker):
 
 def choose_random_move_from_list(board, moves_list):
     possible_moves = []
-    for i in moves_list:
-        if is_space_free(board, i):
-            possible_moves.append(i)
+    for space in moves_list:
+        if is_space_free(board, space):
+            possible_moves.append(space)
     if len(possible_moves) != 0:
         return random.choice(possible_moves)
     else:
@@ -234,18 +241,19 @@ def is_space_free(board, move):
 
 def get_board_copy(board):
     copy_board = []
-    for i in board:
-        copy_board.append(i)
+    for space in board:
+        copy_board.append(space)
     return copy_board
 # ---------------------------------------------Used by PvP------------------------------------------------
 
 
 def game_against_player(players):
+    #play_sound("player_mode_start2.wav")
     board_setup = [" "] * 10
     for marker in players:
         players[marker] = ("")
     assigning_names(players)
-    print("First come, first served!")
+    print("First come, first served!\n")
     game_is_playing = True
     while game_is_playing:
         for marker in players:
